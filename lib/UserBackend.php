@@ -50,7 +50,7 @@ class UserBackend implements IApacheBackend, UserInterface, IUserBackend {
 	/** @var IGroupManager */
 	private $groupManager;
 	/** @var \OCP\UserInterface[] */
-	private static $backends = [];
+	private static $backendCallback;
 	/** @var SAMLSettings */
 	private $settings;
 	/** @var ILogger */
@@ -540,7 +540,11 @@ class UserBackend implements IApacheBackend, UserInterface, IUserBackend {
 	 * @return null|UserInterface
 	 */
 	public function getActualUserBackend($uid) {
-		foreach(self::$backends as $backend) {
+		$backendCallback = self::$backendCallback;
+		foreach($backendCallback() as $backend) {
+			if($backend == $this) {
+				continue;
+			}
 			if($backend->userExists($uid)) {
 				return $backend;
 			}
@@ -555,8 +559,8 @@ class UserBackend implements IApacheBackend, UserInterface, IUserBackend {
 	 *
 	 * @param \OCP\UserInterface[] $backends
 	 */
-	public function registerBackends(array $backends) {
-		self::$backends = $backends;
+	public function registerBackends($backendCallback) {
+		self::$backendCallback = $backendCallback;
 	}
 
 	private function getAttributeKeys($name)

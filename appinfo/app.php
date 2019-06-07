@@ -51,7 +51,7 @@ $userBackend = new \OCA\User_SAML\UserBackend(
 	$samlSettings,
 	\OC::$server->getLogger()
 );
-$userBackend->registerBackends(\OC::$server->getUserManager()->getBackends());
+$userBackend->registerBackends(function() { return OC::$server->getUserManager()->getBackends(); });
 OC_User::useBackend($userBackend);
 
 $params = [];
